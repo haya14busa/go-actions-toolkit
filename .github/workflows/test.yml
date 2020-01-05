@@ -1,0 +1,144 @@
+name: Test
+on: [push]
+jobs:
+
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/setup-go@v1
+      with:
+        go-version: 1.13
+    - uses: actions/checkout@v2
+
+    - name: Unit Tests
+      run: go test -v ./...
+
+  integration-test:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/setup-go@v1
+      with:
+        go-version: 1.13
+
+    - uses: actions/checkout@v2
+
+    # https://github.com/actions/cache/blob/master/examples.md#go---modules
+    - name: Cache Go Modules
+      id: cache
+      uses: actions/cache@v1
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: Install actions-toolkit CLI
+      run: go install ./cmd/actions-toolkit
+
+    - name: Add $GOPATH/bin
+      run: |
+        # echo ::add-path::$(go env GOPATH)/bin
+        $(go env GOPATH)/bin/actions-toolkit add-path $(go env GOPATH)/bin
+
+    - name: export-variable
+      run: |
+        actions-toolkit export-variable -name=TESTVAR -value=testval
+    - name: check export-variable
+      run: |
+        test "${TESTVAR}" = "testval"
+
+    - name: set-secret
+      run: |
+        echo "passw0rd"
+        actions-toolkit set-secret passw0rd
+        echo "passw0rd"
+    - name: check set-secret
+      run: |
+        echo "passw0rd"
+
+    - name: add-path
+      run: |
+        echo $PATH
+        actions-toolkit add-path /path/to/dir
+        echo $PATH
+    - name: check add-path
+      run: |
+        echo $PATH
+
+    - name: get-input
+      env:
+        INPUT_TESTINPUT: testvalue
+      run: |
+        test "$(actions-toolkit get-input testinput)" = "testvalue"
+
+    - name: set-output
+      id: set-output
+      run: |
+        actions-toolkit set-output -name=n1 -value=v1
+        actions-toolkit set-output -name=n2 -value=v2
+    - name: check set-output
+      env:
+        n1: ${{steps.set-output.outputs.n1}}
+        n2: ${{steps.set-output.outputs.n2}}
+      run: |
+        test $n1 = "v1"
+        test $n2 = "v2"
+
+    - name: debug
+      env:
+        # it won't work and need to use "secret" instead.
+        # https://help.github.com/en/actions/automating-your-workflow-with-github-actions/development-tools-for-github-actions#set-a-debug-message-debug
+        ACTIONS_STEP_DEBUG: true
+      run: |
+        actions-toolkit debug "debug test message"
+
+    - name: error
+      run: |
+        actions-toolkit error "debug error message"
+        actions-toolkit error -file=core/core.go "debug error message with file"
+        actions-toolkit error -file=core/core.go -line=1 "debug error message with file,line"
+        actions-toolkit error -file=core/core.go -line=1 -col=2 "debug error message with file,line,col"
+
+    - name: warning
+      run: |
+        actions-toolkit warning "debug warning message"
+        actions-toolkit warning -file=core/core.go "debug warning message with file"
+        actions-toolkit warning -file=core/core.go -line=1 "debug warning message with file,line"
+        actions-toolkit warning -file=core/core.go -line=1 -col=2 "debug warning message with file,line,col"
+
+    - name: log-multiline
+      run: |
+        text=$(echo -e "this is line one\nthis is line two\nthis is line three")
+        actions-toolkit warning -file=core/core.go "$text"
+
+    - name: Too many logs
+      run: |
+        for i in {1..100}
+        do
+          actions-toolkit warning -file=core/core.go -line=2 "many log $i"
+        done
+
+    - name: Too many logs2
+      run: |
+        for i in {1..100}
+        do
+          actions-toolkit warning -file=core/core.go -line=2 "many log (2) $i"
+        done
+
+    - name: group
+      run: |
+        actions-toolkit start-group grouptest1
+        for i in {1..15}
+        do
+          echo "group log $i"
+        done
+        actions-toolkit end-group
+
+        actions-toolkit start-group grouptest2
+        echo "grouptest2 start"
+        actions-toolkit error -file=core/core.go -line=14 "error message in group test 1"
+        actions-toolkit error -file=core/core.go -line=14 "error message in group test 2"
+        echo "grouptest2 end"
+        actions-toolkit end-group

@@ -66,7 +66,7 @@ func log(cmd string, mes string, opt *LogOption) {
 			p.AddLine(opt.Line)
 		}
 		if opt.Col != 0 {
-			p.AddLine(opt.Col)
+			p.AddCol(opt.Col)
 		}
 	}
 	IssueCommand(cmd, p, mes)
