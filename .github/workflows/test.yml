@@ -85,3 +85,11 @@ jobs:
       run: |
         test $n1 = "v1"
         test $n2 = "v2"
+
+    - name: debug
+      env:
+        # it won't work and need to use "secret" instead.
+        # https://help.github.com/en/actions/automating-your-workflow-with-github-actions/development-tools-for-github-actions#set-a-debug-message-debug
+        ACTIONS_STEP_DEBUG: true
+      run: |
+        actions-toolkit debug "debug test message"
