@@ -22,10 +22,6 @@ jobs:
       with:
         go-version: 1.13
 
-    - name: Add $GOPATH/bin
-      run: |
-        echo ::add-path::$(go env GOPATH)/bin
-
     - uses: actions/checkout@v2
 
     # https://github.com/actions/cache/blob/master/examples.md#go---modules
@@ -40,6 +36,11 @@ jobs:
 
     - name: Install actions-toolkit CLI
       run: go install ./cmd/actions-toolkit
+
+    - name: Add $GOPATH/bin
+      run: |
+        # echo ::add-path::$(go env GOPATH)/bin
+        $(go env GOPATH)/bin/actions-toolkit add-path $(go env GOPATH)/bin
 
     - name: export-variable
       run: |
@@ -56,3 +57,12 @@ jobs:
     - name: check set-secret
       run: |
         echo "passw0rd"
+
+    - name: add-path
+      run: |
+        echo $PATH
+        actions-toolkit add-path /path/to/dir
+        echo $PATH
+    - name: check add-path
+      run: |
+        echo $PATH
