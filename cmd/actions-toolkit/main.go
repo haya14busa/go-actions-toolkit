@@ -20,6 +20,7 @@ func main() {
 	subcommands.Register(&getInput{}, "")
 	subcommands.Register(&setOutput{}, "")
 	subcommands.Register(&debug{}, "")
+	subcommands.Register(&errorCmd{}, "")
 	subcommands.Register(&warning{}, "")
 	subcommands.Register(&info{}, "")
 	subcommands.Register(&startGroup{}, "")
@@ -169,6 +170,34 @@ func (sc *debug) SetFlags(f *flag.FlagSet) {
 }
 func (sc *debug) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
 	core.Debug(f.Arg(0), &core.LogOption{File: sc.file, Line: sc.line, Col: sc.col})
+	return subcommands.ExitSuccess
+}
+
+//-----------------------------------------------------------------------
+// Error
+//-----------------------------------------------------------------------
+
+type errorCmd struct {
+	file string
+	line int
+	col  int
+}
+
+func (*errorCmd) Name() string { return "error" }
+func (*errorCmd) Synopsis() string {
+	return `Writes error message to user log.`
+}
+func (*errorCmd) Usage() string {
+	return `error [-file=<file name> -line=<value> -col=<value>] <message>
+`
+}
+func (sc *errorCmd) SetFlags(f *flag.FlagSet) {
+	f.StringVar(&sc.file, "file", "", "")
+	f.IntVar(&sc.line, "line", 0, "")
+	f.IntVar(&sc.col, "col", 0, "")
+}
+func (sc *errorCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
+	core.Error(f.Arg(0), &core.LogOption{File: sc.file, Line: sc.line, Col: sc.col})
 	return subcommands.ExitSuccess
 }
 
