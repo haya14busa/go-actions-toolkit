@@ -93,3 +93,17 @@ jobs:
         ACTIONS_STEP_DEBUG: true
       run: |
         actions-toolkit debug "debug test message"
+
+    - name: error
+      run: |
+        actions-toolkit error "debug error message"
+        actions-toolkit error -file=core/core.go "debug error message with file"
+        actions-toolkit error -file=core/core.go -line=1 "debug error message with file,line"
+        actions-toolkit error -file=core/core.go -line=1 -col=2 "debug error message with file,line,col"
+
+    - name: warning
+      run: |
+        actions-toolkit warning "debug warning message"
+        actions-toolkit warning -file=core/core.go "debug warning message with file"
+        actions-toolkit warning -file=core/core.go -line=1 "debug warning message with file,line"
+        actions-toolkit warning -file=core/core.go -line=1 -col=2 "debug warning message with file,line,col"
