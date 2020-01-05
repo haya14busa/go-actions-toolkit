@@ -3,10 +3,9 @@ on: [push]
 jobs:
 
   test:
-    name: Test
+    name: Unit Tests
     runs-on: ubuntu-latest
     steps:
-
     - uses: actions/setup-go@v1
       with:
         go-version: 1.13
@@ -14,3 +13,46 @@ jobs:
 
     - name: Unit Tests
       run: go test -v ./...
+
+  integration-test:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/setup-go@v1
+      with:
+        go-version: 1.13
+
+    - name: Add $GOPATH/bin
+      run: |
+        echo ::add-path::$(go env GOPATH)/bin
+
+    - uses: actions/checkout@v2
+
+    # https://github.com/actions/cache/blob/master/examples.md#go---modules
+    - name: Cache Go Modules
+      id: cache
+      uses: actions/cache@v1
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: Install actions-toolkit CLI
+      run: go install ./cmd/actions-toolkit
+
+    - name: export-variable
+      run: |
+        actions-toolkit export-variable -name=TESTVAR -value=testval
+    - name: check export-variable
+      run: |
+        test "${TESTVAR}" = "testval"
+
+    - name: set-secret
+      run: |
+        echo "passw0rd"
+        actions-toolkit set-secret passw0rd
+        echo "passw0rd"
+    - name: check set-secret
+      run: |
+        echo "passw0rd"
