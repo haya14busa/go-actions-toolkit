@@ -72,3 +72,16 @@ jobs:
         INPUT_TESTINPUT: testvalue
       run: |
         test "$(actions-toolkit get-input testinput)" = "testvalue"
+
+    - name: set-output
+      id: set-output
+      run: |
+        actions-toolkit set-output -name=n1 -value=v1
+        actions-toolkit set-output -name=n2 -value=v2
+    - name: check set-output
+      env:
+        n1: ${{steps.set-output.outputs.n1}}
+        n2: ${{steps.set-output.outputs.n2}}
+      run: |
+        test $n1 = "v1"
+        test $n2 = "v2"
