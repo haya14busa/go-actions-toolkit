@@ -107,3 +107,8 @@ jobs:
         actions-toolkit warning -file=core/core.go "debug warning message with file"
         actions-toolkit warning -file=core/core.go -line=1 "debug warning message with file,line"
         actions-toolkit warning -file=core/core.go -line=1 -col=2 "debug warning message with file,line,col"
+
+    - name: log-multiline
+      run: |
+        text=$(echo -e "this is line one\nthis is line two\nthis is line three")
+        actions-toolkit warning -file=core/core.go "$text"
