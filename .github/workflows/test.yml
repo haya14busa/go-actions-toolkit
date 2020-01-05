@@ -66,3 +66,9 @@ jobs:
     - name: check add-path
       run: |
         echo $PATH
+
+    - name: get-input
+      env:
+        INPUT_TESTINPUT: testvalue
+      run: |
+        test "$(actions-toolkit get-input testinput)" = "testvalue"
