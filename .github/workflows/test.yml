@@ -119,3 +119,10 @@ jobs:
         do
           actions-toolkit warning -file=core/core.go -line=2 "many log $i"
         done
+
+    - name: Too many logs2
+      run: |
+        for i in {1..100}
+        do
+          actions-toolkit warning -file=core/core.go -line=2 "many log (2) $i"
+        done
