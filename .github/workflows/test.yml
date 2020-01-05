@@ -126,3 +126,19 @@ jobs:
         do
           actions-toolkit warning -file=core/core.go -line=2 "many log (2) $i"
         done
+
+    - name: group
+      run: |
+        actions-toolkit start-group grouptest1
+        for i in {1..15}
+        do
+          echo "group log $i"
+        done
+        actions-toolkit end-group
+
+        actions-toolkit start-group grouptest2
+        echo "grouptest2 start"
+        actions-toolkit error -file=core/core.go -line=14 "error message in group test 1"
+        actions-toolkit error -file=core/core.go -line=14 "error message in group test 2"
+        echo "grouptest2 end"
+        actions-toolkit end-group
