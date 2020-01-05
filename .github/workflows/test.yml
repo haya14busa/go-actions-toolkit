@@ -112,3 +112,10 @@ jobs:
       run: |
         text=$(echo -e "this is line one\nthis is line two\nthis is line three")
         actions-toolkit warning -file=core/core.go "$text"
+
+    - name: Too many logs
+      run: |
+        for i in {1..100}
+        do
+          actions-toolkit warning -file=core/core.go -line=2 "many log $i"
+        done
