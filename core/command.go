@@ -90,7 +90,7 @@ func (c Command) String() string {
 			cmdStr.WriteString(",")
 		}
 
-		cmdStr.WriteString(fmt.Sprintf("%s=%s", key, escape(val)))
+		cmdStr.WriteString(fmt.Sprintf("%s=%s", key, escapeProperty(val)))
 	}
 
 	cmdStr.WriteString(cmdString)
@@ -98,15 +98,24 @@ func (c Command) String() string {
 	return cmdStr.String()
 }
 
+var escaperData = strings.NewReplacer(
+	"%", "%25",
+	"\r", "%0D",
+	"\n", "%0A",
+)
+
 func escapeData(s string) string {
-	return strings.NewReplacer("\r", "%0D", "\n", "%0A").Replace(s)
+	return escaperData.Replace(s)
 }
 
-func escape(s string) string {
-	return strings.NewReplacer(
-		"\r", "%0D",
-		"\n", "%0A",
-		"]", "%5D",
-		";", "%3B",
-	).Replace(s)
+var escaperProperty = strings.NewReplacer(
+	"%", "%25",
+	"\r", "%0D",
+	"\n", "%0A",
+	":", "%3A",
+	",", "%2C",
+)
+
+func escapeProperty(s string) string {
+	return escaperProperty.Replace(s)
 }
